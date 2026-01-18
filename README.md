@@ -27,6 +27,7 @@ Eğer projeyi kendi bilgisayarınızda çalıştırmak isterseniz:
 1.  Projeyi indirin.
 2.  Gerekli paketleri yükleyin: `npm install`
 3.  Veritabanını hazırlayın: `npx prisma generate` ve `npx prisma db push`
+3.1 Demo Verilerini Yükleyin (Seed): `npm run db:seed`
 4.  Uygulamayı başlatın: `npm run dev`
 
 İyi çalışmalar! 👋
