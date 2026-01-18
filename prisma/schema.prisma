@@ -1,0 +1,87 @@
+// Akmanlar İş Merkezi - Veritabanı Şeması (SQLite)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ==================== FIRMALAR ====================
+model Company {
+  id            String    @id @default(cuid())
+  name          String
+  floor         String?
+  unit          String?
+  contactName   String?
+  contactPhone  String?
+  contactEmail  String?
+  rentAmount    Float
+  rentDueDay    Int       @default(1)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  users    User[]
+  payments Payment[]
+  invoices Invoice[]
+
+  @@map("companies")
+}
+
+// ==================== KULLANICILAR ====================
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("TENANT")
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ==================== ÖDEMELER ====================
+model Payment {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type        String
+  amount      Float
+  dueDate     DateTime
+  paidDate    DateTime?
+  paidAmount  Float?
+  status      String   @default("PENDING")
+  period      String
+  description String?
+  receiptUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("payments")
+}
+
+// ==================== FATURALAR/MAKBUZLAR ====================
+model Invoice {
+  id         String   @id @default(cuid())
+  companyId  String
+  company    Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type       String
+  period     String
+  fileName   String
+  fileUrl    String
+  fileSize   Int?
+  uploadedAt DateTime @default(now())
+
+  @@index([companyId])
+  @@map("invoices")
+}
