@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Building2, ArrowLeft, Mail, Lock, Loader2 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = searchParams.get("role") || "admin";
@@ -45,11 +45,13 @@ export default function LoginPage() {
   const isAdmin = role === "admin";
 
   return (
-    <main className={`min-h-screen flex items-center justify-center p-4 ${
-      isAdmin
-        ? "bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900"
-        : "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-    }`}>
+    <main
+      className={`min-h-screen flex items-center justify-center p-4 ${
+        isAdmin
+          ? "bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900"
+          : "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+      }`}
+    >
       <div className="max-w-md w-full">
         {/* Geri Butonu */}
         <Link
@@ -63,18 +65,18 @@ export default function LoginPage() {
         {/* Giriş Kartı */}
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Header */}
-          <div className={`px-8 py-6 text-center ${
-            isAdmin ? "bg-primary-600" : "bg-gray-700"
-          }`}>
+          <div
+            className={`px-8 py-6 text-center ${
+              isAdmin ? "bg-primary-600" : "bg-gray-700"
+            }`}
+          >
             <div className="inline-flex items-center justify-center w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl mb-3">
               <Building2 className="w-7 h-7 text-white" />
             </div>
             <h1 className="text-xl font-bold text-white">
               {isAdmin ? "Yönetim Paneli" : "Kiracı Portalı"}
             </h1>
-            <p className="text-white/70 text-sm mt-1">
-              Akmanlar İş Merkezi
-            </p>
+            <p className="text-white/70 text-sm mt-1">Akmanlar İş Merkezi</p>
           </div>
 
           {/* Form */}
@@ -86,7 +88,10 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
                 E-posta Adresi
               </label>
               <div className="relative">
@@ -104,7 +109,10 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1.5"
+              >
                 Şifre
               </label>
               <div className="relative">
@@ -150,5 +158,33 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function LoginLoading() {
+  return (
+    <main className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="px-8 py-6 text-center bg-primary-600">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-white/10 backdrop-blur-sm rounded-xl mb-3">
+              <Building2 className="w-7 h-7 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-white">Yükleniyor...</h1>
+          </div>
+          <div className="p-8 flex justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginForm />
+    </Suspense>
   );
 }
