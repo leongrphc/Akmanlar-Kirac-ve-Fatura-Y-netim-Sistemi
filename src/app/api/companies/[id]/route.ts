@@ -4,11 +4,12 @@ import prisma from "@/lib/prisma";
 // GET /api/companies/[id] - Firma detayı
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const company = await prisma.company.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         payments: {
           orderBy: { dueDate: "desc" },
@@ -25,7 +26,7 @@ export async function GET(
     if (!company) {
       return NextResponse.json(
         { success: false, error: "Firma bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -34,7 +35,7 @@ export async function GET(
     console.error("Error fetching company:", error);
     return NextResponse.json(
       { success: false, error: "Firma yüklenirken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -42,13 +43,14 @@ export async function GET(
 // PUT /api/companies/[id] - Firma güncelle
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
 
     const company = await prisma.company.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: body.name,
         floor: body.floor,
@@ -66,7 +68,7 @@ export async function PUT(
     console.error("Error updating company:", error);
     return NextResponse.json(
       { success: false, error: "Firma güncellenirken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -74,11 +76,12 @@ export async function PUT(
 // DELETE /api/companies/[id] - Firma sil
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     await prisma.company.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({
@@ -89,7 +92,7 @@ export async function DELETE(
     console.error("Error deleting company:", error);
     return NextResponse.json(
       { success: false, error: "Firma silinirken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

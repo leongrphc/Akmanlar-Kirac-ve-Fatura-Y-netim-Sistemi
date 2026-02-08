@@ -4,10 +4,10 @@ import prisma from "@/lib/prisma";
 // PUT /api/payments/[id]/pay - Ödeme yap
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const paymentId = params.id;
+    const { id: paymentId } = await params;
     const body = await request.json();
 
     // Mevcut ödemeyi bul
@@ -18,14 +18,14 @@ export async function PUT(
     if (!existingPayment) {
       return NextResponse.json(
         { success: false, error: "Ödeme bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (existingPayment.status === "PAID") {
       return NextResponse.json(
         { success: false, error: "Bu ödeme zaten yapılmış" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -54,7 +54,7 @@ export async function PUT(
     console.error("Error processing payment:", error);
     return NextResponse.json(
       { success: false, error: "Ödeme işlenirken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -62,11 +62,12 @@ export async function PUT(
 // GET /api/payments/[id] - Tek ödeme detayı
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
+    const { id } = await params;
     const payment = await prisma.payment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         company: true,
       },
@@ -75,7 +76,7 @@ export async function GET(
     if (!payment) {
       return NextResponse.json(
         { success: false, error: "Ödeme bulunamadı" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -84,7 +85,7 @@ export async function GET(
     console.error("Error fetching payment:", error);
     return NextResponse.json(
       { success: false, error: "Ödeme yüklenirken hata oluştu" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
